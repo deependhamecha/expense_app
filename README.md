@@ -1,16 +1,24 @@
-# expense_app
+# Expense App
 
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- Dissimisible
+- Spacer
+- Expanded
+- SizedBox
+- Dialogbox
+- DialogBottomSheet
+- DatePicker
+- Controller for input fields
+- Dropdown buttons
+- For loop with map on UI
+- Enums
+- Model classes
+- Input fields
+- DateTime
+- Passing Functions as input (@Output)
+- Passing Input variables value(@Input)
+- Snackbar (Scaffold Messages)
+- Snackbar with Undo functionality
+- Theming
+- Dark theme mode
+- Theme mode
+- Chart
