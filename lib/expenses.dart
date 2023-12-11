@@ -27,7 +27,12 @@ class _ExpensesState extends State<Expenses> {
     /**
      * isScrollControlled true makes full screen
      */
-    showModalBottomSheet(context: context, builder: (ctx) => NewExpense(onAddExpense: _addExpense), isScrollControlled: true);
+    showModalBottomSheet(
+      useSafeArea: true, // Take Notification bar and Camera into consideration
+      context: context,
+      builder: (ctx) => NewExpense(onAddExpense: _addExpense),
+      isScrollControlled: true
+    );
   }
 
   void _addExpense(Expense expense) {
@@ -67,6 +72,9 @@ class _ExpensesState extends State<Expenses> {
   @override
   Widget build(BuildContext context) {
 
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
+
     Widget mainContent = const Center(
       child: Text('No expenses found. Start adding some!'),
     );
@@ -75,10 +83,21 @@ class _ExpensesState extends State<Expenses> {
       mainContent = ExpensesList(expenses: _registeredExpenses, onRemoveExpense: _removeExpense);
     }
 
+    /**
+     * Scaffold does not occupy full height and width but available empty space after App Bar space.
+     */
     return Scaffold(
-      body: Column(
+      // Column height is unconstrained
+      // Expanded takes avaiable height of the screen.
+      body: width < 600 ? Column(
         children: [
           Chart(expenses: _registeredExpenses),
+          Expanded(child: mainContent)
+        ],
+      ): Row(
+        children: [
+          // As Expanded takes child content, thats why wrapped expanded to both
+          Expanded(child: Chart(expenses: _registeredExpenses)),
           Expanded(child: mainContent)
         ],
       ),

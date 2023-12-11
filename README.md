@@ -22,3 +22,7 @@
 - Dark theme mode
 - Theme mode
 - Chart
+- Limit Orientation
+- Media Query for width and height
+- Media Query for Orientation
+- Identify Platform for IOS(Cupertino)

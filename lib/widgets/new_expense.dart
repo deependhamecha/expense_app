@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:expense_app/models/expense.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class NewExpense extends StatefulWidget {
@@ -36,14 +39,20 @@ class _NewExpense extends State<NewExpense> {
     });
   }
 
-  void _submitExpenseData() {
-
-    // tryParse('Hello') => null if cannot parse
-    final enteredAmount = double.tryParse(_amountController.text);
-
-    final amountisInvalid = enteredAmount == null || enteredAmount <= 0;
-
-    if(_titleController.text.trim().isEmpty || amountisInvalid || _selectedDate == null) {
+  _showDialog() {
+    if(Platform.isIOS) {
+      // For IOS Native Style Dialog
+      showCupertinoDialog(context: context, builder: (ctx) => CupertinoAlertDialog(
+        title: const Text('Invalid Input'),
+        content: const Text('Please make sure a valid title, amount, date and cateogry was entered.'),
+        actions: [
+          TextButton(onPressed: () {
+            Navigator.pop(ctx);
+          },
+          child: const Text('Close'))
+        ],
+      ));
+    } else {
       // Show Error Message
       showDialog(context: context, builder: (ctx) => AlertDialog(
         title: const Text('Invalid Input'),
@@ -55,6 +64,20 @@ class _NewExpense extends State<NewExpense> {
           child: const Text('Close'))
         ],
       ));
+    }
+    
+  }
+
+  void _submitExpenseData() {
+
+    // tryParse('Hello') => null if cannot parse
+    final enteredAmount = double.tryParse(_amountController.text);
+
+    final amountisInvalid = enteredAmount == null || enteredAmount <= 0;
+
+    if(_titleController.text.trim().isEmpty || amountisInvalid || _selectedDate == null) {
+
+      _showDialog();
 
       return;
     }
@@ -100,81 +123,112 @@ class _NewExpense extends State<NewExpense> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(child: TextField(
-                  // onChanged: _saveTitleInput,
-                  controller: _titleController,
-                  maxLength: 50,
-                  keyboardType: TextInputType.text,
-                  decoration: const InputDecoration(
-                    label: Text('Title')
-                  ), // Placeholder.....STRANGE
-                )
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              Expanded(child: TextField(
-                  controller: _amountController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    prefixText: '\$ ',
-                    label: Text('Amount')
-                  ),
+
+    // This will give you contents, which are overlapped by keyboard from bottom or hidden on screen
+    final keyboardSpace = MediaQuery.of(context).viewInsets.bottom;
+
+    return LayoutBuilder(builder: (ctx, constraints) {
+
+      final width = constraints.maxWidth;
+      final paddingEdgeInsets = EdgeInsets.fromLTRB(16, 48, 16, keyboardSpace + 16);
+
+      // Extracted Dropdown to a variable
+      final dropdownButton = // Yuck!!!!
+                    // Dropdown doesn't have controller
+                    DropdownButton(
+                      value: _selectedCategory,
+                      items: Category.values.map(
+                        (category) => DropdownMenuItem(
+                          value: category,
+                          child: Text(
+                            category.name.toUpperCase(),
+                          )
+                        )
+                      ).toList(),
+                      onChanged: (value) {
+                        if(value == null) {
+                          return;
+                        }
+                        setState(() {
+                          _selectedCategory = value;
+                        });
+                      }
+                    );
+
+      // Constraints applied by parents widget.
+      // Works kinda like @media query
+      print(constraints.minWidth);
+      print(constraints.maxWidth);
+      print(constraints.minHeight);
+      print(constraints.maxHeight);
+
+      return SizedBox(
+        height: double.infinity,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: paddingEdgeInsets,
+            child: Column(
+              children: [
+                // You can use if else here also
+                // if(width >= 600)
+                //   Row(children: [],)
+                // else
+                Row(
+                  children: [
+                    Expanded(child: TextField(
+                        // onChanged: _saveTitleInput,
+                        controller: _titleController,
+                        maxLength: 50,
+                        keyboardType: TextInputType.text,
+                        decoration: const InputDecoration(
+                          label: Text('Title')
+                        ), // Placeholder.....STRANGE
+                      )
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  // Exclaimation to tell dart that this wont be null
-                  Text(_selectedDate == null ? 'No date selected': formatter.format(_selectedDate!)),
-                  IconButton(onPressed: _presentDatePicker, icon: const Icon(Icons.calendar_month))
-                ],
-              ))
-            ],
+                Row(
+                  children: [
+                    Expanded(child: TextField(
+                        controller: _amountController,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          prefixText: '\$ ',
+                          label: Text('Amount')
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        // Exclaimation to tell dart that this wont be null
+                        Text(_selectedDate == null ? 'No date selected': formatter.format(_selectedDate!)),
+                        IconButton(onPressed: _presentDatePicker, icon: const Icon(Icons.calendar_month))
+                      ],
+                    ))
+                  ],
+                ),
+                const SizedBox(height: 16,),
+                Row(
+                  children: [
+                    dropdownButton,
+                    const Spacer(),
+                    ElevatedButton(
+                      onPressed: () {
+                        _submitExpenseData();
+                      }, child: const Text('Save Expense')
+                    ),
+                    ElevatedButton(onPressed: onCancel, child: const Text('Cancel'))
+                  ],
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 16,),
-          Row(
-            children: [
-              // Yuck!!!!
-              // Dropdown doesn't have controller
-              DropdownButton(
-                value: _selectedCategory,
-                items: Category.values.map(
-                  (category) => DropdownMenuItem(
-                    value: category,
-                    child: Text(
-                      category.name.toUpperCase(),
-                    )
-                  )
-                ).toList(),
-                onChanged: (value) {
-                  if(value == null) {
-                    return;
-                  }
-                  setState(() {
-                    _selectedCategory = value;
-                  });
-                }
-              ),
-              const Spacer(),
-              ElevatedButton(
-                onPressed: () {
-                  _submitExpenseData();
-                }, child: const Text('Save Expense')
-              ),
-              ElevatedButton(onPressed: onCancel, child: const Text('Cancel'))
-            ],
-          ),
-        ],
-      ),
-    );
+        ),
+      );
+    });
+
+    
   }
 }

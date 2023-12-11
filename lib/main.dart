@@ -1,5 +1,6 @@
 import 'package:expense_app/expenses.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 // Why k is a convenction in flutter to set theme related data
 // For custom Material Theme accent
@@ -10,7 +11,24 @@ var kDarkColorScheme = ColorScheme.fromSeed(
 );
 
 void main() {
+
+  /**
+   * Restrict Device Orienation
+   */
+  // WidgetsFlutterBinding.ensureInitialized();
+
+  // // Set supported Device orienations
+  // SystemChrome.setPreferredOrientations([
+  //   DeviceOrientation.portraitUp,
+  // ]).then((fn) {
+
+  //     // After orienation set
+  //     runApp(const MyApp());
+  // });
+
+
   runApp(const MyApp());
+
 }
 
 class MyApp extends StatelessWidget {
